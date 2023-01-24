@@ -5,14 +5,10 @@ import erc20ABI from '../../static/abis/erc20.abi.json';
 class ERC20Contract {
   private contract;
 
-  constructor(provider: PhantomEthereumProvider) {
+  constructor(provider: PhantomEthereumProvider, erc20Address: string) {
     // SUSHI: https://etherscan.io/token/0x6b3595068778dd592e39a122f4f5a5cf09c90fe2
     const ethersProvider = new ethers.providers.Web3Provider(provider as ethers.providers.ExternalProvider);
-    this.contract = new ethers.Contract(
-      '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2',
-      erc20ABI,
-      ethersProvider.getSigner()
-    );
+    this.contract = new ethers.Contract(erc20Address, erc20ABI, ethersProvider.getSigner());
   }
 
   async approve(address, amount = 1) {

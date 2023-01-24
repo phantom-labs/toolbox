@@ -5,14 +5,10 @@ import erc721ABI from '../../static/abis/erc721.abi.json';
 class ERC721Contract {
   private contract;
 
-  constructor(provider: PhantomEthereumProvider) {
+  constructor(provider: PhantomEthereumProvider, address: string) {
     // BAYC: https://etherscan.io/token/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d
     const ethersProvider = new ethers.providers.Web3Provider(provider as ethers.providers.ExternalProvider);
-    this.contract = new ethers.Contract(
-      '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
-      erc721ABI,
-      ethersProvider.getSigner()
-    );
+    this.contract = new ethers.Contract(address, erc721ABI, ethersProvider.getSigner());
   }
 
   async approve(address, amount = 1) {

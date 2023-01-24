@@ -72,7 +72,7 @@ export type ConnectedMethod =
   | {
       chain: string;
       name: string;
-      onClick: (chainId?: any) => Promise<void | boolean>;
+      onClick: (props: { chainId?: any; address?: string }) => Promise<void | boolean>;
     };
 
 export type ConnectedMethods = {
@@ -187,7 +187,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
 
   /** SendTransaction via Ethereum Provider */
   const handleSendTransactionOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
@@ -216,13 +216,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** Approve ERC20 Token via Ethereum Provider */
   const handleApproveERC20TokenOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId, address }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
       const { ethereum } = provider;
       try {
-        const erc20Contract = new ERC20Contract(ethereum);
+        const erc20Contract = new ERC20Contract(ethereum, address);
 
         // send the transaction up to the network
         const txHash = await erc20Contract.approve((ethereum as any).selectedAddress);
@@ -249,13 +249,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
 
   /** Revoke ERC20 Token via Ethereum Provider */
   const handleRevokeERC20TokenOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId, address }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
       const { ethereum } = provider;
       try {
-        const erc20Contract = new ERC20Contract(ethereum);
+        const erc20Contract = new ERC20Contract(ethereum, address);
 
         // send the transaction up to the network
         const txHash = await erc20Contract.revoke((ethereum as any).selectedAddress);
@@ -281,13 +281,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** Approve ERC721 Token via Ethereum Provider */
   const handleApproveERC721TokenOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId, address }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
       const { ethereum } = provider;
       try {
-        const erc721Contract = new ERC721Contract(ethereum);
+        const erc721Contract = new ERC721Contract(ethereum, address);
 
         // send the transaction up to the network
         const txHash = await erc721Contract.approve((ethereum as any).selectedAddress);
@@ -313,13 +313,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** Revoke ERC721 Token via Ethereum Provider */
   const handleRevokeERC721TokenOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId, address }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
       const { ethereum } = provider;
       try {
-        const erc721Contract = new ERC721Contract(ethereum);
+        const erc721Contract = new ERC721Contract(ethereum, address);
 
         // send the transaction up to the network
         const txHash = await erc721Contract.revoke((ethereum as any).selectedAddress);
@@ -345,13 +345,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** Approve ERC1155 Token via Ethereum Provider */
   const handleApproveERC1155TokenOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId, address }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
       const { ethereum } = provider;
       try {
-        const erc1155Contract = new ERC1155Contract(ethereum);
+        const erc1155Contract = new ERC1155Contract(ethereum, address);
 
         // send the transaction up to the network
         const txHash = await erc1155Contract.approve((ethereum as any).selectedAddress);
@@ -377,13 +377,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** Revoke ERC1155 Token via Ethereum Provider */
   const handleRevokeERC1155TokenOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId, address }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
       const { ethereum } = provider;
       try {
-        const erc1155Contract = new ERC1155Contract(ethereum);
+        const erc1155Contract = new ERC1155Contract(ethereum, address);
 
         // send the transaction up to the network
         const txHash = await erc1155Contract.revoke((ethereum as any).selectedAddress);
@@ -433,7 +433,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
 
   /** SignMessage via Ethereum Provider */
   const handleSignMessageOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
@@ -461,7 +461,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   /** SignTypedMessage (v1) via Ethereum Provider */
   // https://eips.ethereum.org/EIPS/eip-712
   const handleSignTypedMessageV1OnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
@@ -488,7 +488,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** SignTypedMessage (v3) via Ethereum Provider */
   const handleSignTypedMessageV3OnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
@@ -515,7 +515,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** SignTypedMessage (v4) via Ethereum Provider */
   const handleSignTypedMessageV4OnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
@@ -543,7 +543,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
 
   /** SignTypedMessage (v4) via Ethereum Provider using ethers.js */
   const handleSignTypedMessageWithEthersOnEthereum = useCallback(
-    async (chainId) => {
+    async ({ chainId }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
@@ -591,73 +591,115 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   }, [provider, createLog]);
 
   const connectedMethods = useMemo(() => {
-    const evmMethods = [
-      {
-        name: 'Send Transaction',
-        onClick: handleSendTransactionOnEthereum,
-      },
-      // EIP20: https://eips.ethereum.org/EIPS/eip-20 (transfer, approve)
-      [
+    function createEvmMethods({
+      erc20Address,
+      erc721Address,
+      erc1155Address,
+    }: {
+      erc20Address: string;
+      erc721Address: string;
+      erc1155Address: string;
+    }) {
+      return [
         {
-          name: 'Approve ERC20 Token',
-          onClick: handleApproveERC20TokenOnEthereum,
+          name: 'Send Transaction',
+          onClick: handleSendTransactionOnEthereum,
         },
+        // EIP20: https://eips.ethereum.org/EIPS/eip-20 (transfer, approve)
+        [
+          {
+            name: 'Approve ERC20 Token',
+            onClick: handleApproveERC20TokenOnEthereum,
+            args: {
+              address: erc20Address,
+            },
+          },
+          {
+            name: 'Revoke ERC20 Token',
+            onClick: handleRevokeERC20TokenOnEthereum,
+            args: {
+              address: erc20Address,
+            },
+          },
+        ],
+        // EIP721: https://eips.ethereum.org/EIPS/eip-721 (approve)
+        // Approve an address to send the NFT
+        [
+          {
+            name: 'Approve ERC721 Token',
+            onClick: handleApproveERC721TokenOnEthereum,
+            args: {
+              address: erc721Address,
+            },
+          },
+          {
+            name: 'Revoke ERC721 Token',
+            onClick: handleRevokeERC721TokenOnEthereum,
+            args: {
+              address: erc721Address,
+            },
+          },
+        ],
+        // EIP1155: https://eips.ethereum.org/EIPS/eip-1155 (setApprovalForAll)
+        // Approve an address to send the NFT
+        [
+          {
+            name: 'Approve ERC1155 Token (all)',
+            onClick: handleApproveERC1155TokenOnEthereum,
+            args: {
+              address: erc1155Address,
+            },
+          },
+          {
+            name: 'Revoke ERC1155 Token (all)',
+            onClick: handleRevokeERC1155TokenOnEthereum,
+            args: {
+              address: erc1155Address,
+            },
+          },
+        ],
         {
-          name: 'Revoke ERC20 Token',
-          onClick: handleRevokeERC20TokenOnEthereum,
+          name: 'Sign Message',
+          onClick: handleSignMessageOnEthereum,
         },
-      ],
-      // EIP721: https://eips.ethereum.org/EIPS/eip-721 (approve)
-      // Approve an address to send the NFT
-      [
-        {
-          name: 'Approve ERC721 Token',
-          onClick: handleApproveERC721TokenOnEthereum,
-        },
-        {
-          name: 'Revoke ERC721 Token',
-          onClick: handleRevokeERC721TokenOnEthereum,
-        },
-      ],
-      // EIP1155: https://eips.ethereum.org/EIPS/eip-1155 (setApprovalForAll)
-      // Approve an address to send the NFT
-      [
-        {
-          name: 'Approve ERC1155 Token (all)',
-          onClick: handleApproveERC1155TokenOnEthereum,
-        },
-        {
-          name: 'Revoke ERC1155 Token (all)',
-          onClick: handleRevokeERC1155TokenOnEthereum,
-        },
-      ],
-      {
-        name: 'Sign Message',
-        onClick: handleSignMessageOnEthereum,
-      },
-      [
-        {
-          name: 'Sign Typed Message (v1)',
-          onClick: handleSignTypedMessageV1OnEthereum,
-        },
-        {
-          name: 'Sign Typed Message (v3)',
-          onClick: handleSignTypedMessageV3OnEthereum,
-        },
-        {
-          name: 'Sign Typed Message (v4)',
-          onClick: handleSignTypedMessageV4OnEthereum,
-        },
-        {
-          name: 'Sign Typed Message (ethers)',
-          onClick: handleSignTypedMessageWithEthersOnEthereum,
-        },
-      ],
-    ];
+        [
+          {
+            name: 'Sign Typed Message (v1)',
+            onClick: handleSignTypedMessageV1OnEthereum,
+          },
+          {
+            name: 'Sign Typed Message (v3)',
+            onClick: handleSignTypedMessageV3OnEthereum,
+          },
+          {
+            name: 'Sign Typed Message (v4)',
+            onClick: handleSignTypedMessageV4OnEthereum,
+          },
+          {
+            name: 'Sign Typed Message (ethers)',
+            onClick: handleSignTypedMessageWithEthersOnEthereum,
+          },
+        ],
+      ];
+    }
 
     return {
-      [SupportedEVMChainIds.EthereumGoerli]: evmMethods,
-      [SupportedEVMChainIds.PolygonMainnet]: evmMethods,
+      [SupportedEVMChainIds.EthereumGoerli]: createEvmMethods({
+        // sushi ethereum mainnet
+        erc20Address: '0x1a63bbb6e16f7fc7d34817496985757cd550c2c0',
+        // Azuki goerli test (https://testnets.opensea.io/collection/azukigoerli)
+        erc721Address: '0x10b8b56d53bfa5e374f38e6c0830bad4ebee33e6',
+        // kitties #1 (https://testnets.opensea.io/collection/kitties-1-1)
+        erc1155Address: '0xf4910c763ed4e47a585e2d34baa9a4b611ae448c',
+      }),
+      [SupportedEVMChainIds.PolygonMainnet]: createEvmMethods({
+        // sushi polygon mainnet
+        erc20Address: '0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a',
+        // polygon ape YC (https://opensea.io/collection/polygonapeyachtclub)
+        erc721Address: '0x419e82d502f598ca63d821d3bbd8dfefaf9bbc8d',
+        // Mocaverse Realm Ticket (https://opensea.io/collection/mocaverse-realm-ticket)
+        erc1155Address: '0x5c76677fea2bf5dd37e4f1460968a23a537e3ee3',
+      }),
       [SupportedSolanaChainIds.SolanaMainnet]: [
         {
           name: 'Sign and Send Transaction',

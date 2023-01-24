@@ -229,17 +229,19 @@ interface Props {
 const Sidebar = React.memo((props: Props) => {
   function renderConnectedMethods(methods, chainId) {
     return methods.map((method, i) => {
+      const { name, args = {} } = method;
+
       if (Array.isArray(method)) {
         return <ButtonRow>{renderConnectedMethods(method, chainId)}</ButtonRow>;
       }
 
       return (
         <Button
-          data-test-id={`${chainId}-${method.name}`}
-          key={`${method.name}-${i}`}
-          onClick={() => method.onClick(chainId)}
+          data-test-id={`${chainId}-${name}`}
+          key={`${name}-${i}`}
+          onClick={() => method.onClick({ chainId, ...args })}
         >
-          {method.name}
+          {name}
         </Button>
       );
     });

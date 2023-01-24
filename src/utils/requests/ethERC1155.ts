@@ -5,14 +5,10 @@ import erc1155ABI from '../../static/abis/erc1155.abi.json';
 class ERC1155Contract {
   private contract;
 
-  constructor(provider: PhantomEthereumProvider) {
+  constructor(provider: PhantomEthereumProvider, address: string) {
     // RTFKT X Nike: https://etherscan.io/token/0x6d4bbc0387dd4759eee30f6a482ac6dc2df3facf
     const ethersProvider = new ethers.providers.Web3Provider(provider as ethers.providers.ExternalProvider);
-    this.contract = new ethers.Contract(
-      '0x6d4bbc0387dd4759eee30f6a482ac6dc2df3facf',
-      erc1155ABI,
-      ethersProvider.getSigner()
-    );
+    this.contract = new ethers.Contract(address, erc1155ABI, ethersProvider.getSigner());
   }
 
   async approve(address, amount = 1) {
