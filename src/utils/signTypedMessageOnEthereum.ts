@@ -61,13 +61,13 @@ const signTypedMessageOnEthereum = async (
         signedMessage = await signTypedMessageV1(selectedAddress, provider);
         break;
       case 'v3':
-        signedMessage = await signTypedMessageV3(selectedAddress, provider, defaultMsgParams);
+        signedMessage = await signTypedMessageV3(selectedAddress, provider, msgParams);
         break;
       case 'v4':
-        signedMessage = await signTypedMessageV4(selectedAddress, provider, defaultMsgParams);
+        signedMessage = await signTypedMessageV4(selectedAddress, provider, msgParams);
         break;
       case 'ethers':
-        signedMessage = await signTypedMessageUsingEthers(provider, defaultMsgParams);
+        signedMessage = await signTypedMessageUsingEthers(provider, msgParams);
         break;
     }
 
