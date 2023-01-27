@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { DARK_GRAY, GRAY, LIGHT_GRAY, PURPLE, REACT_GRAY, WHITE } from '../../constants';
 import { hexToRGB } from '../../utils';
 import Button from '../Button';
 import { ConnectedAccounts, ConnectedMethods } from '../../App';
-import { SupportedChainIcons, SupportedChainNames, SupportedEVMChainIds, SupportedSolanaChainIds } from '../../types';
+import { SupportedChainIcons, SupportedEVMChainIds } from '../../types';
+import { TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { Select, chakraComponents } from 'chakra-react-select';
+import { css } from '@emotion/react';
 
 // =============================================================================
 // Styled Components
@@ -227,6 +230,8 @@ interface Props {
 // Main Component
 // =============================================================================
 const Sidebar = React.memo((props: Props) => {
+  const [tabIndex, setTabIndex] = useState(0);
+
   function renderConnectedMethods(methods, chainId) {
     return methods.map((method, i) => {
       const { name, args = {} } = method;
@@ -248,6 +253,12 @@ const Sidebar = React.memo((props: Props) => {
   }
 
   const { connectedAccounts, connectedEthereumChainId, connectedMethods, connect } = props;
+
+  const dropdownOptions = Object.keys(connectedMethods).map((key, index) => ({
+    value: index,
+    label: connectedMethods[key].name,
+    icon: connectedMethods[key].icon,
+  }));
   return (
     <Main>
       <Body>
@@ -275,49 +286,55 @@ const Sidebar = React.memo((props: Props) => {
               <Divider />
             </div>
 
-            <div style={{ overflowY: 'scroll', paddingRight: 16 }}>
-              {/* Ethereum Goerli */}
-              <ChainHeader>
-                <ChainIcon
-                  src={SupportedChainIcons.Ethereum}
-                  height="16px"
-                  style={{ marginRight: '6px', borderRadius: '6px' }}
-                />
-                <Tag>{SupportedChainNames.EthereumGoerli}</Tag>
-              </ChainHeader>
-              {renderConnectedMethods(
-                connectedMethods[SupportedEVMChainIds.EthereumGoerli],
-                SupportedEVMChainIds.EthereumGoerli
-              )}
+            <Select
+              defaultValue={dropdownOptions[0]}
+              chakraStyles={{
+                container: (provided, state) => ({
+                  ...provided,
+                  width: '100%',
+                }),
+                dropdownIndicator: (provided, state) => ({
+                  ...provided,
+                  background: '#8A81F8',
+                }),
+              }}
+              onChange={({ value }) => {
+                setTabIndex(value as unknown as number);
+              }}
+              options={dropdownOptions}
+              components={{
+                Option: ({ children, ...props }) => (
+                  <chakraComponents.Option {...props}>
+                    <ChainHeader>
+                      <ChainIcon
+                        src={props.data.icon}
+                        height="16px"
+                        style={{ marginRight: '6px', borderRadius: '6px' }}
+                      />
+                      <Tag style={{ textAlign: 'left', marginLeft: 4, lineHeight: '18px' }}>{props.label}</Tag>
+                    </ChainHeader>
+                  </chakraComponents.Option>
+                ),
+              }}
+            />
 
-              {/* Polygon Mainnet */}
-              <ChainHeader>
-                <ChainIcon
-                  src={SupportedChainIcons.Polygon}
-                  height="16px"
-                  style={{ marginRight: '6px', borderRadius: '6px' }}
-                />
-                <Tag>{SupportedChainNames.PolygonMainnet}</Tag>
-              </ChainHeader>
-              {renderConnectedMethods(
-                connectedMethods[SupportedEVMChainIds.PolygonMainnet],
-                SupportedEVMChainIds.PolygonMainnet
-              )}
-
-              {/* Solana */}
-              <ChainHeader>
-                <ChainIcon
-                  src={SupportedChainIcons.Solana}
-                  height="16px"
-                  style={{ marginRight: '6px', borderRadius: '6px' }}
-                />
-                <Tag>{SupportedChainNames.SolanaMainnet}</Tag>
-              </ChainHeader>
-              {renderConnectedMethods(
-                connectedMethods[SupportedSolanaChainIds.SolanaMainnet],
-                SupportedSolanaChainIds.SolanaMainnet
-              )}
-            </div>
+            <Tabs index={tabIndex}>
+              <TabPanels
+                css={css`
+                  width: 100%;
+                `}
+              >
+                {Object.keys(connectedMethods).map((key) => (
+                  <TabPanel
+                    css={css`
+                      padding: 16px 0 0 0;
+                    `}
+                  >
+                    {renderConnectedMethods(connectedMethods[key].methods, key)}
+                  </TabPanel>
+                ))}
+              </TabPanels>
+            </Tabs>
           </>
         ) : (
           // not connected

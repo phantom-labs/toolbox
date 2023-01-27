@@ -2,45 +2,7 @@ import { ethers } from 'ethers';
 import { PhantomEthereumProvider } from '../types';
 import { getEthereumSelectedAddress } from './getEthereumSelectedAddress';
 
-/**
- * Signs a message on Ethereum
- * @param provider a Phantom ethereum provider
- * @param message a message to sign
- * @returns a signed message is hex string format
- */
-const signTypedMessageOnEthereum = async (
-  provider: PhantomEthereumProvider,
-  version: 'v1' | 'v3' | 'v4' | 'ethers'
-): Promise<string> => {
-  try {
-    const selectedAddress = await getEthereumSelectedAddress(provider);
-
-    let signedMessage;
-
-    switch (version) {
-      case 'v1':
-        signedMessage = await signTypedMessageV1(selectedAddress, provider);
-        break;
-      case 'v3':
-        signedMessage = await signTypedMessageV3(selectedAddress, provider);
-        break;
-      case 'v4':
-        signedMessage = await signTypedMessageV4(selectedAddress, provider);
-        break;
-      case 'ethers':
-        signedMessage = await signTypedMessageUsingEthers(provider);
-        break;
-    }
-
-    if (typeof signedMessage === 'string') return signedMessage;
-    throw new Error('personal_sign did not respond with a signature');
-  } catch (error) {
-    console.warn(error);
-    throw new Error(error.message);
-  }
-};
-
-const msgParams = {
+const defaultMsgParams = {
   types: {
     EIP712Domain: [
       { name: 'name', type: 'string' },
@@ -78,6 +40,45 @@ const msgParams = {
   },
 };
 
+/**
+ * Signs a message on Ethereum
+ * @param provider a Phantom ethereum provider
+ * @param message a message to sign
+ * @returns a signed message is hex string format
+ */
+const signTypedMessageOnEthereum = async (
+  provider: PhantomEthereumProvider,
+  version: 'v1' | 'v3' | 'v4' | 'ethers',
+  msgParams: object = defaultMsgParams
+): Promise<string> => {
+  try {
+    const selectedAddress = await getEthereumSelectedAddress(provider);
+
+    let signedMessage;
+
+    switch (version) {
+      case 'v1':
+        signedMessage = await signTypedMessageV1(selectedAddress, provider);
+        break;
+      case 'v3':
+        signedMessage = await signTypedMessageV3(selectedAddress, provider, defaultMsgParams);
+        break;
+      case 'v4':
+        signedMessage = await signTypedMessageV4(selectedAddress, provider, defaultMsgParams);
+        break;
+      case 'ethers':
+        signedMessage = await signTypedMessageUsingEthers(provider, defaultMsgParams);
+        break;
+    }
+
+    if (typeof signedMessage === 'string') return signedMessage;
+    throw new Error('personal_sign did not respond with a signature');
+  } catch (error) {
+    console.warn(error);
+    throw new Error(error.message);
+  }
+};
+
 const signTypedMessageV1 = async (selectedAddress: string, provider: PhantomEthereumProvider) => {
   return provider.request({
     method: 'eth_signTypedData',
@@ -99,7 +100,7 @@ const signTypedMessageV1 = async (selectedAddress: string, provider: PhantomEthe
   });
 };
 
-const signTypedMessageV3 = async (selectedAddress: string, provider: PhantomEthereumProvider) => {
+const signTypedMessageV3 = async (selectedAddress: string, provider: PhantomEthereumProvider, msgParams) => {
   return provider.request({
     method: 'eth_signTypedData_v3',
     params: [selectedAddress, msgParams],
@@ -107,7 +108,7 @@ const signTypedMessageV3 = async (selectedAddress: string, provider: PhantomEthe
 };
 
 // https://eips.ethereum.org/assets/eip-712/Example.js
-const signTypedMessageV4 = async (selectedAddress: string, provider: PhantomEthereumProvider) => {
+const signTypedMessageV4 = async (selectedAddress: string, provider: PhantomEthereumProvider, msgParams) => {
   return provider.request({
     method: 'eth_signTypedData_v4',
     params: [selectedAddress, msgParams],
@@ -115,7 +116,7 @@ const signTypedMessageV4 = async (selectedAddress: string, provider: PhantomEthe
 };
 
 // https://eips.ethereum.org/assets/eip-712/Example.js
-const signTypedMessageUsingEthers = async (provider: PhantomEthereumProvider) => {
+const signTypedMessageUsingEthers = async (provider: PhantomEthereumProvider, msgParams) => {
   const params = { ...msgParams };
   delete params.types.EIP712Domain;
 

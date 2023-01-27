@@ -4,6 +4,7 @@
  * Alternatively, you can fork this sandbox to refresh the dependencies manually.
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ChakraProvider } from '@chakra-ui/react';
 import styled from 'styled-components';
 import { Connection, PublicKey } from '@solana/web3.js';
 
@@ -19,7 +20,14 @@ import {
   signMessageOnSolana,
 } from './utils';
 
-import { PhantomInjectedProvider, SupportedEVMChainIds, SupportedSolanaChainIds, TLog } from './types';
+import {
+  PhantomInjectedProvider,
+  SupportedChainIcons,
+  SupportedChainNames,
+  SupportedEVMChainIds,
+  SupportedSolanaChainIds,
+  TLog,
+} from './types';
 
 import { Logs, NoProvider, Sidebar } from './components';
 import { connect, silentlyConnect } from './utils/connect';
@@ -76,7 +84,11 @@ export type ConnectedMethod =
     };
 
 export type ConnectedMethods = {
-  [chainId in SupportedEVMChainIds & SupportedSolanaChainIds]: ConnectedMethod;
+  [chainId in SupportedEVMChainIds & SupportedSolanaChainIds]: {
+    icon: string;
+    name: string;
+    methods: ConnectedMethod[];
+  };
 };
 
 interface Props {
@@ -273,6 +285,62 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
           providerType: 'ethereum',
           status: 'error',
           method: 'eth_sendTransaction',
+          message: error.message,
+        });
+      }
+    },
+    [provider, createLog, isEthereumChainIdReady, ethereumChainId]
+  );
+  const handleApproveGaslessERC20TokenOnEthereum = useCallback(
+    async ({ chainId }) => {
+      // set ethereum provider to the correct chainId
+      const ready = await isEthereumChainIdReady(chainId);
+      if (!ready) return;
+      const { ethereum } = provider;
+      try {
+        const signedMessage = await signTypedMessageOnEthereum(ethereum, 'v4', {
+          domain: {
+            chainId: 1,
+            name: 'Dai Stablecoin',
+            verifyingContract: '0x6b175474e89094c44da98b954eedeac495271d0f',
+            version: '1',
+          },
+          message: {
+            expiry: 1674899371,
+            nonce: 1,
+            spender: '0x1111111254eeb25477b68fb85ed929f73a960582',
+            holder: '0x3ed5fffe493d4066191d7b7e76784a33defd0018',
+            allowed: true,
+          },
+          primaryType: 'Permit',
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+            Permit: [
+              { name: 'holder', type: 'address' },
+              { name: 'spender', type: 'address' },
+              { name: 'nonce', type: 'uint256' },
+              { name: 'expiry', type: 'uint256' },
+              { name: 'allowed', type: 'bool' },
+            ],
+          },
+        });
+        createLog({
+          providerType: 'ethereum',
+          status: 'success',
+          method: 'eth_signTypedData_v4',
+          message: `Message signed: ${signedMessage}`,
+        });
+        return signedMessage;
+      } catch (error) {
+        createLog({
+          providerType: 'ethereum',
+          status: 'error',
+          method: 'eth_signTypedData_v4',
           message: error.message,
         });
       }
@@ -621,6 +689,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
               address: erc20Address,
             },
           },
+          {
+            name: 'Approve Gasless ERC20 Token',
+            onClick: handleApproveGaslessERC20TokenOnEthereum,
+            args: {
+              address: erc20Address,
+            },
+          },
         ],
         // EIP721: https://eips.ethereum.org/EIPS/eip-721 (approve)
         // Approve an address to send the NFT
@@ -684,37 +759,49 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
     }
 
     return {
-      [SupportedEVMChainIds.EthereumGoerli]: createEvmMethods({
-        // sushi ethereum mainnet
-        erc20Address: '0x1a63bbb6e16f7fc7d34817496985757cd550c2c0',
-        // Azuki goerli test (https://testnets.opensea.io/collection/azukigoerli)
-        erc721Address: '0x10b8b56d53bfa5e374f38e6c0830bad4ebee33e6',
-        // kitties #1 (https://testnets.opensea.io/collection/kitties-1-1)
-        erc1155Address: '0xf4910c763ed4e47a585e2d34baa9a4b611ae448c',
-      }),
-      [SupportedEVMChainIds.PolygonMainnet]: createEvmMethods({
-        // sushi polygon mainnet
-        erc20Address: '0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a',
-        // polygon ape YC (https://opensea.io/collection/polygonapeyachtclub)
-        erc721Address: '0x419e82d502f598ca63d821d3bbd8dfefaf9bbc8d',
-        // Mocaverse Realm Ticket (https://opensea.io/collection/mocaverse-realm-ticket)
-        erc1155Address: '0x5c76677fea2bf5dd37e4f1460968a23a537e3ee3',
-      }),
-      [SupportedSolanaChainIds.SolanaMainnet]: [
-        {
-          name: 'Sign and Send Transaction',
-          onClick: handleSignAndSendTransactionOnSolana,
-        },
+      [SupportedEVMChainIds.EthereumGoerli]: {
+        icon: SupportedChainIcons.Ethereum,
+        name: SupportedChainNames.EthereumGoerli,
+        methods: createEvmMethods({
+          // sushi ethereum mainnet
+          erc20Address: '0x1a63bbb6e16f7fc7d34817496985757cd550c2c0',
+          // Azuki goerli test (https://testnets.opensea.io/collection/azukigoerli)
+          erc721Address: '0x10b8b56d53bfa5e374f38e6c0830bad4ebee33e6',
+          // kitties #1 (https://testnets.opensea.io/collection/kitties-1-1)
+          erc1155Address: '0xf4910c763ed4e47a585e2d34baa9a4b611ae448c',
+        }),
+      },
+      [SupportedEVMChainIds.PolygonMainnet]: {
+        icon: SupportedChainIcons.Polygon,
+        name: SupportedChainNames.PolygonMainnet,
+        methods: createEvmMethods({
+          // sushi polygon mainnet
+          erc20Address: '0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a',
+          // polygon ape YC (https://opensea.io/collection/polygonapeyachtclub)
+          erc721Address: '0x419e82d502f598ca63d821d3bbd8dfefaf9bbc8d',
+          // Mocaverse Realm Ticket (https://opensea.io/collection/mocaverse-realm-ticket)
+          erc1155Address: '0x5c76677fea2bf5dd37e4f1460968a23a537e3ee3',
+        }),
+      },
+      [SupportedSolanaChainIds.SolanaMainnet]: {
+        icon: SupportedChainIcons.Solana,
+        name: SupportedChainNames.SolanaMainnet,
+        methods: [
+          {
+            name: 'Sign and Send Transaction',
+            onClick: handleSignAndSendTransactionOnSolana,
+          },
 
-        {
-          name: 'Sign Message',
-          onClick: handleSignMessageOnSolana,
-        },
-        {
-          name: 'Disconnect',
-          onClick: handleDisconnect,
-        },
-      ],
+          {
+            name: 'Sign Message',
+            onClick: handleSignMessageOnSolana,
+          },
+          {
+            name: 'Disconnect',
+            onClick: handleDisconnect,
+          },
+        ],
+      },
     };
   }, [
     handleSignAndSendTransactionOnSolana,
@@ -755,15 +842,17 @@ const StatelessApp = React.memo((props: Props) => {
   const { connectedAccounts, connectedEthereumChainId, connectedMethods, handleConnect, logs, clearLogs } = props;
 
   return (
-    <StyledApp>
-      <Sidebar
-        connectedAccounts={connectedAccounts}
-        connectedEthereumChainId={connectedEthereumChainId}
-        connectedMethods={connectedMethods}
-        connect={handleConnect}
-      />
-      <Logs connectedAccounts={connectedAccounts} logs={logs} clearLogs={clearLogs} />
-    </StyledApp>
+    <ChakraProvider>
+      <StyledApp>
+        <Sidebar
+          connectedAccounts={connectedAccounts}
+          connectedEthereumChainId={connectedEthereumChainId}
+          connectedMethods={connectedMethods}
+          connect={handleConnect}
+        />
+        <Logs connectedAccounts={connectedAccounts} logs={logs} clearLogs={clearLogs} />
+      </StyledApp>
+    </ChakraProvider>
   );
 });
 
