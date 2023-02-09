@@ -8,3 +8,4 @@ node_modules
 .vscode/
 workspace*
 .codesandbox
+tests/e2e/videos

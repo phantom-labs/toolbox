@@ -1,0 +1,24 @@
+import HomePage from '../pages/home-page';
+
+const home = new HomePage();
+
+let metamaskWalletAddress;
+
+describe('Wallet tests', () => {
+  before(() => {
+    cy.getMetamaskWalletAddress().then((address) => {
+      metamaskWalletAddress = address;
+    });
+    cy.visit('https://app.uniswap.org');
+  });
+  context('Connect phantom wallet', () => {
+    it('should login with success', () => {
+      cy.get('[data-testid=navbar-connect-wallet]').click();
+      cy.log('Clicked Connect!');
+      cy.get('#metamask').click();
+
+      cy.acceptMetamaskAccessRequest();
+      cy.contains(metamaskWalletAddress.substring(0, 5));
+    });
+  });
+});

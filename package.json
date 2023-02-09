@@ -32,13 +32,17 @@
     "@types/react": "^17.0.21",
     "@types/react-dom": "^17.0.9",
     "@types/styled-components": "^5.1.25",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "@synthetixio/synpress": "link:../synpress"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "test:e2e": "synpress run --config baseUrl=https://vdw8w3.csb.app/",
+    "test:e2e:local:metamask": "PROVIDER=metamask SECRET_WORDS='test test test test test test test test test test test junk' synpress run --config baseUrl=https://app.uniswap.org/",
+    "test:e2e:local:phantom": "PROVIDER=phantom SECRET_WORDS='test test test test test test test test test test test junk' synpress run --config baseUrl=https://toolbox.phantom.dev/"
   },
   "browserslist": [
     ">0.2%",

@@ -1,0 +1,34 @@
+import MetamaskPage from '../pages/metamask-page';
+
+const home = new MetamaskPage();
+
+let metamaskWalletAddress;
+
+describe('dApp: Metamask test dapp', () => {
+  before(() => {
+    cy.visit('https://metamask.github.io/test-dapp/');
+  });
+  context('Connect phantom wallet', () => {
+    // before(() => {
+    //   // cy.setupMetamask();
+    //   cy.fetchWalletAddress().then((address) => {
+    //     metamaskWalletAddress = address;
+    //   });
+    // });
+    it('should login with success', () => {
+      cy.get('#connectButton').click();
+      cy.acceptAccess();
+      cy.get('#getAccounts').click();
+      cy.get('#getAccountsResult').contains(metamaskWalletAddress.toLowerCase());
+    });
+
+    it('Should sign a regular message correctly', () => {
+      cy.get('#ethSign').click();
+      cy.confirmSignatureRequest();
+    });
+    it('Should send a transaction', () => {
+      cy.get('#sendEIP1559Button').click();
+      cy.confirmTransaction();
+    });
+  });
+});
