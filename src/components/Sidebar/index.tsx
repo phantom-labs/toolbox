@@ -242,7 +242,7 @@ const Sidebar = React.memo((props: Props) => {
 
       return (
         <Button
-          data-test-id={`${chainId}-${name}`}
+          data-test-id={`${chainId}-${name.toLowerCase().replace(/ /g, '-')}`}
           key={`${name}-${i}`}
           onClick={() => method.onClick({ chainId, ...args })}
         >
@@ -273,20 +273,21 @@ const Sidebar = React.memo((props: Props) => {
               <Pre>Connected as</Pre>
               <AccountRow>
                 <ChainIcon src={SupportedChainIcons.Ethereum} height="36px" />
-                <Badge>{connectedAccounts?.ethereum}</Badge>
+                <Badge data-testid="account-0x1">{connectedAccounts?.ethereum}</Badge>
               </AccountRow>
               <AccountRow>
                 <ChainIcon src={SupportedChainIcons.Polygon} height="36px" />
-                <Badge>{connectedAccounts?.ethereum}</Badge>
+                <Badge data-testid="account-0x137">{connectedAccounts?.ethereum}</Badge>
               </AccountRow>
               <AccountRow>
                 <ChainIcon src={SupportedChainIcons.Solana} height="36px" />
-                <Badge>{connectedAccounts?.solana?.toBase58()}</Badge>
+                <Badge data-testid="account-0x100">{connectedAccounts?.solana?.toBase58()}</Badge>
               </AccountRow>
               <Divider />
             </div>
 
             <Select
+              data-testid="chain_switcher-select"
               defaultValue={dropdownOptions[0]}
               chakraStyles={{
                 container: (provided, state) => ({
@@ -304,7 +305,10 @@ const Sidebar = React.memo((props: Props) => {
               options={dropdownOptions}
               components={{
                 Option: ({ children, ...props }) => (
-                  <chakraComponents.Option {...props}>
+                  <chakraComponents.Option
+                    {...props}
+                    data-testid={`chain_switcher-option-${props.label.toLowerCase().replace(/ /g, '-')}`}
+                  >
                     <ChainHeader>
                       <ChainIcon
                         src={props.data.icon}
