@@ -242,7 +242,7 @@ const Sidebar = React.memo((props: Props) => {
 
       return (
         <Button
-          data-test-id={`${chainId}-${name.toLowerCase().replace(/ /g, '-')}`}
+          data-testid={`${chainId}-${name.toLowerCase().replace(/ /g, '-')}`}
           key={`${name}-${i}`}
           onClick={() => method.onClick({ chainId, ...args })}
         >
