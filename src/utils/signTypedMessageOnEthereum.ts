@@ -124,7 +124,10 @@ const signTypedMessageUsingEthers = async (provider: PhantomEthereumProvider, ms
   return ethersProvider.getSigner()._signTypedData(msgParams.domain, msgParams.types, msgParams.message);
 };
 
-export const signPermit2Message = async (provider: PhantomEthereumProvider) => {
+export const signPermit2Message = async (
+  provider: PhantomEthereumProvider,
+  value = '1461501637330902918203684832716283019655932542975'
+) => {
   const selectedAddress = await getEthereumSelectedAddress(provider);
 
   return signTypedMessageV4(selectedAddress, provider, {
@@ -132,7 +135,7 @@ export const signPermit2Message = async (provider: PhantomEthereumProvider) => {
     message: {
       details: {
         token: '0x6b175474e89094c44da98b954eedeac495271d0f',
-        amount: '1461501637330902918203684832716283019655932542975',
+        amount: value,
         expiration: '1679042624',
         nonce: '0',
       },

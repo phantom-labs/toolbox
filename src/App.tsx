@@ -638,13 +638,13 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
   );
   /** SignTypedMessage (v4) via Ethereum Provider using ethers.js */
   const handleSignPermit2Message = useCallback(
-    async ({ chainId }) => {
+    async ({ chainId, value }) => {
       // set ethereum provider to the correct chainId
       const ready = await isEthereumChainIdReady(chainId);
       if (!ready) return;
       const { ethereum } = provider;
       try {
-        const signedMessage = await signPermit2Message(ethereum);
+        const signedMessage = await signPermit2Message(ethereum, value);
         createLog({
           providerType: 'ethereum',
           status: 'success',
@@ -812,6 +812,10 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
           {
             name: 'Permit2',
             onClick: handleSignPermit2Message,
+          },
+          {
+            name: 'Permit2 (Small amount)',
+            onClick: ({ chainId }) => handleSignPermit2Message({ chainId, value: 0.5 * 1e18 }),
           },
           {
             name: 'EIP2612',
