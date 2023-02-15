@@ -38,7 +38,7 @@ import { useEthereumSelectedAddress } from './utils/getEthereumSelectedAddress';
 import ERC20Contract from './utils/requests/ethERC20';
 import ERC721Contract from './utils/requests/ethERC721';
 import ERC1155Contract from './utils/requests/ethERC1155';
-import signTypedMessageOnEthereum from './utils/signTypedMessageOnEthereum';
+import signTypedMessageOnEthereum, { signEIP2612Message, signPermit2Message } from './utils/signTypedMessageOnEthereum';
 
 // =============================================================================
 // Styled Components
@@ -636,6 +636,59 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
     },
     [provider, createLog, isEthereumChainIdReady]
   );
+  /** SignTypedMessage (v4) via Ethereum Provider using ethers.js */
+  const handleSignPermit2Message = useCallback(
+    async ({ chainId }) => {
+      // set ethereum provider to the correct chainId
+      const ready = await isEthereumChainIdReady(chainId);
+      if (!ready) return;
+      const { ethereum } = provider;
+      try {
+        const signedMessage = await signPermit2Message(ethereum);
+        createLog({
+          providerType: 'ethereum',
+          status: 'success',
+          method: 'eth_signTypedData',
+          message: `Permit2 Message signed: ${signedMessage}`,
+        });
+        return signedMessage;
+      } catch (error) {
+        createLog({
+          providerType: 'ethereum',
+          status: 'error',
+          method: 'eth_signTypedData',
+          message: error.message,
+        });
+      }
+    },
+    [provider, createLog, isEthereumChainIdReady]
+  );
+  const handleSignEIP2612Message = useCallback(
+    async ({ chainId }) => {
+      // set ethereum provider to the correct chainId
+      const ready = await isEthereumChainIdReady(chainId);
+      if (!ready) return;
+      const { ethereum } = provider;
+      try {
+        const signedMessage = await signEIP2612Message(ethereum);
+        createLog({
+          providerType: 'ethereum',
+          status: 'success',
+          method: 'eth_signTypedData',
+          message: `EIP2612 Message signed: ${signedMessage}`,
+        });
+        return signedMessage;
+      } catch (error) {
+        createLog({
+          providerType: 'ethereum',
+          status: 'error',
+          method: 'eth_signTypedData',
+          message: error.message,
+        });
+      }
+    },
+    [provider, createLog, isEthereumChainIdReady]
+  );
 
   /**
    * Disconnect from Solana
@@ -755,6 +808,16 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
             onClick: handleSignTypedMessageWithEthersOnEthereum,
           },
         ],
+        [
+          {
+            name: 'Permit2',
+            onClick: handleSignPermit2Message,
+          },
+          {
+            name: 'EIP2612',
+            onClick: handleSignEIP2612Message,
+          },
+        ],
       ];
     }
 
@@ -811,6 +874,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
     handleApproveERC20TokenOnEthereum,
     handleApproveERC721TokenOnEthereum,
     handleApproveERC1155TokenOnEthereum,
+    handleApproveGaslessERC20TokenOnEthereum,
     handleRevokeERC20TokenOnEthereum,
     handleRevokeERC721TokenOnEthereum,
     handleRevokeERC1155TokenOnEthereum,
@@ -818,6 +882,8 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
     handleSignTypedMessageV3OnEthereum,
     handleSignTypedMessageV4OnEthereum,
     handleSignTypedMessageWithEthersOnEthereum,
+    handleSignPermit2Message,
+    handleSignEIP2612Message,
     handleDisconnect,
   ]);
 

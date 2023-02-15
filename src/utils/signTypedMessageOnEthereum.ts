@@ -124,4 +124,76 @@ const signTypedMessageUsingEthers = async (provider: PhantomEthereumProvider, ms
   return ethersProvider.getSigner()._signTypedData(msgParams.domain, msgParams.types, msgParams.message);
 };
 
+export const signPermit2Message = async (provider: PhantomEthereumProvider) => {
+  const selectedAddress = await getEthereumSelectedAddress(provider);
+
+  return signTypedMessageV4(selectedAddress, provider, {
+    domain: { chainId: '1', name: 'Permit2', verifyingContract: '0x000000000022d473030f116ddee9f6b43ac78ba3' },
+    message: {
+      details: {
+        token: '0x6b175474e89094c44da98b954eedeac495271d0f',
+        amount: '1461501637330902918203684832716283019655932542975',
+        expiration: '1679042624',
+        nonce: '0',
+      },
+      spender: '0xef1c6e67703c7bd7107eed8303fbe6ec2554bf6b',
+      sigDeadline: '1676452424',
+    },
+    primaryType: 'PermitSingle',
+    types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
+      PermitSingle: [
+        { name: 'details', type: 'PermitDetails' },
+        { name: 'spender', type: 'address' },
+        { name: 'sigDeadline', type: 'uint256' },
+      ],
+      PermitDetails: [
+        { name: 'token', type: 'address' },
+        { name: 'amount', type: 'uint160' },
+        { name: 'expiration', type: 'uint48' },
+        { name: 'nonce', type: 'uint48' },
+      ],
+    },
+  });
+};
+export const signEIP2612Message = async (provider: PhantomEthereumProvider) => {
+  const selectedAddress = await getEthereumSelectedAddress(provider);
+
+  return signTypedMessageV4(selectedAddress, provider, {
+    domain: {
+      chainId: 1,
+      name: 'Dai Stablecoin',
+      verifyingContract: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      version: '1',
+    },
+    message: {
+      expiry: 1674899371,
+      nonce: 1,
+      spender: '0x1111111254eeb25477b68fb85ed929f73a960582',
+      holder: '0x3ed5fffe493d4066191d7b7e76784a33defd0018',
+      allowed: true,
+    },
+    primaryType: 'Permit',
+    types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
+      Permit: [
+        { name: 'holder', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'expiry', type: 'uint256' },
+        { name: 'allowed', type: 'bool' },
+      ],
+    },
+  });
+};
+
 export default signTypedMessageOnEthereum;
