@@ -815,7 +815,7 @@ const useProps = (provider: PhantomInjectedProvider | null): Props => {
           },
           {
             name: 'Permit2 (Small amount)',
-            onClick: ({ chainId }) => handleSignPermit2Message({ chainId, value: 0.5 * 1e18 }),
+            onClick: ({ chainId }) => handleSignPermit2Message({ chainId, value: (0.5 * 1e18).toString() }),
           },
           {
             name: 'EIP2612',
