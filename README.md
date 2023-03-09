@@ -1,3 +1,3 @@
 # Phantom Toolbox
 
-Used for internal testing.
+A toolbox for executing transactions using the Phantom wallet.
